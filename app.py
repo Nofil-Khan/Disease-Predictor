@@ -1,16 +1,26 @@
-from flask import Flask 
+from flask import Flask , request , jsonify , render_template
+import joblib
+from func import Doctor
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route("/")
 def home():
-    return "Welcome to the Disease Predictor API!"
-
-@app.route("/<symptom>")
-def print_symptom(symptom):
-    return f"You entered the symptom: {symptom}"
+    return render_template('home_page')
 
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route("/predict")
+def predict():
+    data = request.get_json()
+    # data pe preprocessing from PIYUSH function to get symptom
+    # lets take dummy symptoms for the time being
+    symptoms = ['itching' , 'continuous_sneezing' , 'acidity']
+    helper = Doctor(symptoms)
+    ans = helper.predicting(symptoms)
+    return jsonify({ans})
+
+    
+    
+
+
