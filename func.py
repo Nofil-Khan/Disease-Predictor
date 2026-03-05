@@ -1,34 +1,57 @@
 import pandas as pd
 import joblib
 import numpy as np
+import warnings
+
+warnings.filterwarnings("ignore")
+
 
 class Doctor:
 
     def __init__(self):
-        self.df = pd.read_csv('Testing.csv')
-        self.model = joblib.load('Model_saved.pkl')
-        self.all_symptoms = self.df.columns
-        self.length = len(self.all_symptoms)
+
+        self.df = pd.read_csv("Testing.csv")
+
+        model_bundle = joblib.load("model_bundle.pkl")
+        self.model = model_bundle["model"]
+        self.symptoms = list(model_bundle["features"])
+        self.length = len(self.symptoms)
+        self.mapping = {symptom: i for i, symptom in enumerate(self.symptoms)}
 
     def extract_feature(self, symptoms):
-        initial = [0] * (self.length - 1)
 
-        for i in range(self.length - 1):
-            if self.all_symptoms[i] in symptoms:
-                initial[i] = 1
+        feature_vector = np.zeros(self.length)
 
-        return initial
+        for symptom in symptoms:
+
+            if symptom in self.mapping:
+
+                feature_vector[self.mapping[symptom]] = 1
+
+        return feature_vector
 
     def predicting(self, symptoms):
-        final = self.extract_feature(symptoms)
 
-        final = np.array(final).reshape(1, -1)
+        features = self.extract_feature(symptoms)
 
-        final_df = pd.DataFrame(
-            final,
-            columns=self.all_symptoms[:self.length - 1]
-        )
+        features = features.reshape(1, -1)
 
-        ans = self.model.predict(final_df)
+        prediction = self.model.predict(features)
 
-        return ans[0]
+        return prediction[0]
+
+
+# create once
+doctor = Doctor()
+# print(doctor.predicting(symptoms=['skin_rash' , 'chills' , 'muscle_wasting']))
+importance = doctor.model.feature_importances_
+
+df = pd.DataFrame({
+    "symptom": doctor.symptoms,
+    "importance": importance
+}).sort_values("importance", ascending=False)
+
+print(df.head(10))
+# print(doctor.predicting(['itching', 'skin_rash']))
+# print(doctor.predicting(['vomiting', 'nausea']))
+# print(doctor.predicting(['chest_pain', 'breathlessness']))
