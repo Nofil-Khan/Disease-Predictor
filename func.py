@@ -9,9 +9,6 @@ warnings.filterwarnings("ignore")
 class Doctor:
 
     def __init__(self):
-
-        self.df = pd.read_csv("Testing.csv")
-
         model_bundle = joblib.load("model_bundle.pkl")
         self.model = model_bundle["model"]
         self.symptoms = list(model_bundle["features"])
@@ -55,3 +52,9 @@ print(df.head(10))
 # print(doctor.predicting(['itching', 'skin_rash']))
 # print(doctor.predicting(['vomiting', 'nausea']))
 # print(doctor.predicting(['chest_pain', 'breathlessness']))
+
+
+
+
+class NLP:
+    

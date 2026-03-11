@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Detector| AI Symptom Checker</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+    <div class="container">
+        <h1>Disease Detector</h1>
+        <p class="subtitle">Identify potential health conditions according to the database</p>
+
+        <form id="symptomForm">
+            <div class="input-group">
+                <label for="symptoms">Describe your symptoms in detail:</label>
+                <textarea id="symptoms" name="symptoms"
+                    placeholder="E.g., I have been experiencing a severe headache, mild fever, and fatigue for the last 3 days. My throat also feels a bit scratchy..."
+                    required></textarea>
+            </div>
+
+            <button type="submit" class="analyze-btn">Analyze Symptoms</button>
+        </form>
+
+        <div class="loading" id="loadingDiv">
+            <div class="spinner"></div> Processing your data through our intelligence engine...
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <h3>Diagnostic Prediction</h3>
+            <p><strong>Predicted Condition:</strong>
+                <span style="color: #fff;">Viral Infection (Simulated)</span>
+            </p>
+            <p style="margin-top: 10px; font-size: 0.85rem; color: #a0aec0;">
+                <em>Disclaimer: This is a predictive model and not a substitute for professional medical advice.
+                    Please consult a doctor for accurate diagnosis.</em>
+            </p>
+        </div>
+    </div>
+
+    <!-- <script src="home.js"></script> -->
+
+</body>
+</html>

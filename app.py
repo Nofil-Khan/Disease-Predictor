@@ -1,26 +1,26 @@
-from flask import Flask , request , jsonify , render_template
-import joblib
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
 from func import Doctor
 
-app = Flask(__name__)
-
-@app.route("/")
-def home():
-    return render_template('home_page')
+app = FastAPI()
+doctor = Doctor()
+templates = Jinja2Templates(directory="templates")
 
 
+@app.get("/")
+def home(request: Request):
+    return templates.TemplateResponse(
+        "form.html",
+        {"request": request}
+    )
 
-@app.route("/predict")
-def predict():
-    data = request.get_json()
-    # data pe preprocessing from PIYUSH function to get symptom
-    # lets take dummy symptoms for the time being
-    symptoms = ['itching' , 'continuous_sneezing' , 'acidity']
-    helper = Doctor(symptoms)
-    ans = helper.predicting(symptoms)
-    return jsonify({ans})
+@app.post("/predict")
+async def predict(data: dict):
 
-    
-    
+    message = data["message"]
 
+    symptoms = preprocess(message)         # This function should return a list of symmptoms
 
+    ans = doctor.predicting(symptoms)
+
+    return {"prediction": ans}
