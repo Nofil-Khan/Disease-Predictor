@@ -41,20 +41,13 @@ class Doctor:
 # create once
 doctor = Doctor()
 # print(doctor.predicting(symptoms=['skin_rash' , 'chills' , 'muscle_wasting']))
-importance = doctor.model.feature_importances_
+# importance = doctor.model.feature_importances_
 
-df = pd.DataFrame({
-    "symptom": doctor.symptoms,
-    "importance": importance
-}).sort_values("importance", ascending=False)
+# df = pd.DataFrame({
+#     "symptom": doctor.symptoms,
+#     "importance": importance
+# }).sort_values("importance", ascending=False)
 
-print(df.head(10))
-# print(doctor.predicting(['itching', 'skin_rash']))
-# print(doctor.predicting(['vomiting', 'nausea']))
-# print(doctor.predicting(['chest_pain', 'breathlessness']))
+print(doctor.predicting(['pushkar']))
 
-
-
-
-class NLP:
     
