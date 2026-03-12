@@ -36,6 +36,9 @@ def predict(data: Message):
     if not text:
         return {"prediction": "Please enter symptoms"}
 
+
+    # comments hahahahahahahha
+
     prediction = doctor.predicting([text])
     print(prediction)   
 
