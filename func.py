@@ -1,94 +1,164 @@
+import os
 import pandas as pd
 import joblib
 import numpy as np
 import warnings
-
+# import spacy
+from google import genai
 warnings.filterwarnings("ignore")
+os.environ["GEMINI_API_KEY"]
 
 
 class Doctor:
 
     def __init__(self):
         model_bundle = joblib.load("model_bundle.pkl")
+
         self.model = model_bundle["model"]
         self.symptoms = list(model_bundle["features"])
         self.length = len(self.symptoms)
+
         self.mapping = {symptom: i for i, symptom in enumerate(self.symptoms)}
+
+        # diseases (labels)
+        self.diseases = model_bundle.get("labels", None)
+
+        # API setup
+        api_key = os.getenv("GEMINI_API_KEY")
+        if api_key is None:
+            raise ValueError("GEMINI_API_KEY environment variable not found")
+
+        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
 
     def extract_feature(self, symptoms):
 
-        feature_vector = np.zeros(self.length)
+        feature_vector = np.zeros(self.length, dtype=int)
 
         for symptom in symptoms:
-
             if symptom in self.mapping:
-
                 feature_vector[self.mapping[symptom]] = 1
 
         return feature_vector
 
+
     def predicting(self, symptoms):
 
         features = self.extract_feature(symptoms)
-
         features = features.reshape(1, -1)
 
-        prediction = self.model.predict(features)
+        prediction = self.model.predict(features)[0]
 
-        return prediction[0]
+        probability = None
+        if hasattr(self.model, "predict_proba"):
+            prob = self.model.predict_proba(features)[0]
+            confidence = np.max(prob) * 100
+            probability = round(confidence, 2)
 
-
-# create once
-doctor = Doctor()
-# print(doctor.predicting(symptoms=['skin_rash' , 'chills' , 'muscle_wasting']))
-# importance = doctor.model.feature_importances_
-
-# df = pd.DataFrame({
-#     "symptom": doctor.symptoms,
-#     "importance": importance
-# }).sort_values("importance", ascending=False)
-
-# print(doctor.predicting(['pushkar']))
+        return prediction, probability
 
 
+    def top_predictions(self, symptoms, top_n=3):
 
+        features = self.extract_feature(symptoms)
+        features = features.reshape(1, -1)
 
-import spacy
-nlp = spacy.load("en_core_web_sm")
+        prob = self.model.predict_proba(features)[0]
 
-symptom_dataset = [
-"itching","skin_rash","nodal_skin_eruptions","continuous_sneezing","shivering","chills","joint_pain","stomach_pain","acidity",
-"ulcers_on_tongue","muscle_wasting","vomiting","burning_micturition","spotting_ urination","fatigue","weight_gain","anxiety",
-"cold_hands_and_feets","mood_swings","weight_loss","restlessness","lethargy","patches_in_throat","irregular_sugar_level","cough"
-,"high_fever","sunken_eyes","breathlessness","sweating","dehydration","indigestion","headache","yellowish_skin","dark_urine","nausea"
-,"loss_of_appetite","pain_behind_the_eyes","back_pain","constipation","abdominal_pain","diarrhoea","mild_fever","yellow_urine",
-"yellowing_of_eyes","acute_liver_failure","fluid_overload","swelling_of_stomach","swelled_lymph_nodes","malaise","blurred_and_distorted_vision",
-"phlegm","throat_irritation","redness_of_eyes","sinus_pressure","runny_nose","congestion","chest_pain","weakness_in_limbs","fast_heart_rate",
-"pain_during_bowel_movements","pain_in_anal_region","bloody_stool","irritation_in_anus","neck_pain","dizziness","cramps","bruising","obesity",
-"swollen_legs","swollen_blood_vessels","puffy_face_and_eyes","enlarged_thyroid","brittle_nails","swollen_extremeties","excessive_hunger",
-"extra_marital_contacts","drying_and_tingling_lips","slurred_speech","knee_pain","hip_joint_pain","muscle_weakness","stiff_neck","swelling_joints"
-,"movement_stiffness","spinning_movements","loss_of_balance","unsteadiness","weakness_of_one_body_side","loss_of_smell","bladder_discomfort"
-,"foul_smell_of urine","continuous_feel_of_urine","passage_of_gases","internal_itching","toxic_look_(typhos)","depression","irritability",
-"muscle_pain","altered_sensorium","red_spots_over_body","belly_pain","abnormal_menstruation","dischromic _patches","watering_from_eyes",
-"increased_appetite","polyuria","family_history","mucoid_sputum","rusty_sputum","lack_of_concentration","visual_disturbances",
-"receiving_blood_transfusion","receiving_unsterile_injections","coma","stomach_bleeding","distention_of_abdomen","history_of_alcohol_consumption"
-,"fluid_overload","blood_in_sputum","prominent_veins_on_calf","palpitations","painful_walking","pus_filled_pimples","blackheads","scurring",
-"skin_peeling","silver_like_dusting","small_dents_in_nails","inflammatory_nails","blister","red_sore_around_nose","yellow_crust_ooze"
-]
+        top_indices = np.argsort(prob)[::-1][:top_n]
 
-class NLP:
-    def extract_symptoms(self , text):
+        results = []
 
-        doc = nlp(text)
+        for idx in top_indices:
+            disease = self.model.classes_[idx]
+            confidence = round(prob[idx] * 100, 2)
+            results.append((disease, confidence))
+        
 
-        detected_symptoms = []
-
-        for token in doc:
-            word = token.text.lower()
-
-            if word in symptom_dataset:
-                detected_symptoms.append(word)
-
-        return list(set(detected_symptoms))
-
+        return results
     
+
+    def explain_disease(self, symptoms):
+        top = self.top_predictions(symptoms)
+
+        prompt = "User reported symptoms:\n"
+        prompt += ", ".join(symptoms) + "\n\n"
+
+        prompt += "Model predicted the following diseases:\n"
+
+        for i, (disease, confidence) in enumerate(top, start=1):
+            prompt += f"{i}. {disease} — {confidence}% confidence\n"
+
+        prompt += """
+
+        Task:
+        Explain the prediction results to the user using the exact structure described below.
+
+        Rules:
+        - Only use the diseases listed in the predictions above.
+        - Do NOT introduce new diseases.
+        - Do NOT modify or rephrase the symptoms.
+        - Replace underscores in symptoms with spaces when displaying them.
+        - Keep the explanation calm, simple, and informative.
+        - Keep the total length under 150 words.
+
+        Required Output Structure:
+
+        1. Start with this exact sentence:
+        Here is a summary of the possible conditions based on your symptoms.
+
+        2. Then write:
+
+        Reported symptoms:
+        [Each symptom listed on a new line with a bullet point, replacing underscores with spaces]
+
+        3. Then write:
+
+        Possible conditions identified by the model:
+        [List the predicted diseases in a numbered format along with their confidence percentages]
+        
+       4. Confidence Interpretation Rules:
+        - If a disease confidence score is greater than 60%, explain that the symptoms strongly match patterns associated with that condition.
+        - If a disease confidence score is between 40% and 60%, explain that the symptoms show a moderate match.
+        - If a disease confidence score is below 40%, explain that the symptoms only weakly match and the model is uncertain.
+        - If all predictions are below 40%, clearly state that the model could not find a strong match and that the symptoms may relate to other conditions not strongly represented in the dataset.
+                
+
+        5. End with a disclaimer stating that the information is only guidance and that the user should consult a healthcare professional for proper diagnosis.
+
+        Important:
+        Follow this structure exactly.
+        Do not add extra sections.
+        Do not deviate from the required format.
+        Everything should be under 250 words in total.
+        Focus on the 4th point the most VERY VERY IMPORTANT, as it provides the reasoning behind the predictions, which is crucial for user understanding.
+        """
+        
+        response = self.client.models.generate_content(
+            model="gemma-3-27b-it",
+            contents=prompt
+        )
+        
+        return response.text
+
+
+doctor = Doctor()
+symptoms = ["fatigue",
+
+"high_fever",
+
+"runny_nose",
+
+"abdominal_pain",
+
+"blurred_and_distorted_vision"]
+
+# prediction, confidence = doctor.predicting(symptoms)
+
+# print("Predicted disease:", prediction)
+# print("Confidence:", confidence)
+
+# print("Explanation:")
+# print(doctor.explain_disease(symptoms))
+
+print(doctor.explain_disease(symptoms))
