@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disease Detector | AI Symptom Checker</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/home.js"></script>
+<title>Disease Detector | AI Symptom Checker</title>
+
+<link rel="stylesheet" href="/static/style.css">
+
+<!-- Markdown renderer -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- Main JS -->
+<script src="/static/home.js" defer></script>
 
 </head>
 
@@ -14,56 +20,59 @@
 
 <div class="container">
 
-    <h1>Disease Detector</h1>
+<h1>Disease Detector</h1>
 
-    <p class="subtitle">
-        Identify potential health conditions according to the database
-    </p>
+<p class="subtitle">
+Identify potential health conditions according to the database
+</p>
 
-    <form id="symptomForm">
+<form id="symptomForm">
 
-        <div class="input-group">
-            <label for="symptoms">
-                Describe your symptoms in detail:
-            </label>
+<div class="input-group">
 
-            <textarea
-                id="symptoms"
-                name="symptoms"
-                placeholder="E.g., I have been experiencing a severe headache, mild fever, and fatigue for the last 3 days."
-                required>
-            </textarea>
-        </div>
+<label for="symptoms">
+Describe your symptoms in detail:
+</label>
 
-        <button type="submit" class="analyze-btn">
-            Analyze Symptoms
-        </button>
+<textarea
+id="symptoms"
+name="symptoms"
+placeholder="E.g., I have been experiencing a severe headache, mild fever, and fatigue for the last 3 days."
+required></textarea>
 
-    </form>
+</div>
 
-    <div class="loading" id="loadingDiv">
-        <div class="spinner"></div>
-        Processing your data through our intelligence engine...
-    </div>
+<button type="submit" class="analyze-btn">
+Analyze Symptoms
+</button>
 
-    <div class="result-box" id="resultBox">
+</form>
 
-        <h3>Diagnostic Prediction</h3>
+<!-- Loading animation -->
+<div class="loading" id="loadingDiv" style="display:none;">
 
-        <p>
-            <strong>Predicted Condition:</strong>
-            <span style="color:#fff;">Viral Infection (Simulated)</span>
-        </p>
+<div class="spinner"></div>
 
-        <p style="margin-top:10px;font-size:0.85rem;color:#a0aec0;">
-            <em>
-                Disclaimer: This is a predictive model and not a substitute for
-                professional medical advice. Please consult a doctor for
-                accurate diagnosis.
-            </em>
-        </p>
+Processing your data through our intelligence engine...
 
-    </div>
+</div>
+
+<!-- Prediction result -->
+<div class="result-box" id="resultBox" style="display:none;">
+
+<h3>Diagnostic Prediction</h3>
+
+<div id="predictionContent"></div>
+
+<p style="margin-top:10px;font-size:0.85rem;color:#a0aec0;">
+<em>
+Disclaimer: This is a predictive model and not a substitute for
+professional medical advice. Please consult a doctor for
+accurate diagnosis.
+</em>
+</p>
+
+</div>
 
 </div>
 

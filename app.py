@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from func import Doctor , NLP
+from func import Doctor
 
 app = FastAPI()
 
@@ -37,12 +37,11 @@ def predict(data: Message):
         return {"prediction": "Please enter symptoms"}
 
     # Extract symptoms using NLP
-    nlp = NLP()
-    symptoms = nlp.extract_symptoms(text)
+    # symptoms = nlp.extract_symptoms(text)
 
     # comments hahahahahahahha
 
-    prediction = doctor.predicting(symptoms)
+    prediction_explained = doctor.explain_disease([text])   
     # print(prediction)   
 
-    return {"prediction": prediction}
+    return {"prediction": prediction_explained}
