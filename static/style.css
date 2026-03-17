@@ -5,6 +5,26 @@
     font-family: 'Poppins', sans-serif;
 }
 
+nav {
+    background-color: #575757;
+    text-align: center;
+    width: 100%;
+    margin-top: 0;
+    justify-content: space-between;
+}
+
+nav a {
+    
+    color:#0f2027;
+    text-decoration: none;
+    padding: 20px 30px;
+    display:inline-block;
+}
+
+nav a:hover{
+    background-color:aqua;
+    border-radius: 5px;
+}
 body {
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     color: #ffffff;
