@@ -74,94 +74,93 @@ class Doctor:
         return results
     
 
-    # def symptom_contribution(self, symptoms):
+    def symptom_contribution(self, symptoms):
 
-    #     features = self.extract_feature(symptoms).reshape(1, -1)
+            features = self.extract_feature(symptoms).reshape(1, -1)
 
-    #     shap_values = self.explainer(features)
+            shap_values = self.explainer(features)
 
-    #     disease_index = np.argmax(self.model.predict_proba(features)[0])
+            disease_index = np.argmax(self.model.predict_proba(features)[0])
 
-    #     contributions = shap_values.values[0][:, disease_index]
+            contributions = shap_values.values[0][:, disease_index]
 
-    #     results = []
+            results = []
 
-        # for symptom in symptoms:
-        #     idx = self.mapping[symptom]
-        #     results.append((symptom, contributions[idx]))
+            for symptom in symptoms:
+                idx = self.mapping[symptom]
+                results.append((symptom, contributions[idx]))
 
-        # results.sort(key=lambda x: abs(x[1]), reverse=True)
+            results.sort(key=lambda x: abs(x[1]), reverse=True)
 
-        # return results
+            return results
             
 
-    def explain_disease(self, symptoms):
-        top = self.top_predictions(symptoms)
+#     def explain_disease(self, symptoms):
+#         top = self.top_predictions(symptoms)
 
-        # contributions = self.symptom_contribution(symptoms)
-        # top_symptoms = contributions[:3]
+#         contributions = self.symptom_contribution(symptoms)
+#         top_symptoms = contributions[:3]
 
-        contribution_text = ""
-        # for symptom, score in top_symptoms:
-        #     contribution_text += f"- {symptom} (model influence: {round(score,3)})\n"
+#         contribution_text = ""
+#         for symptom, score in top_symptoms:
+#             contribution_text += f"- {symptom} (model influence: {round(score,3)})\n"
 
-        prompt = "User reported symptoms:\n"
-        prompt += ", ".join(symptoms) + "\n\n"
+#         prompt = "User reported symptoms:\n"
+#         prompt += ", ".join(symptoms) + "\n\n"
 
-        prompt += "Model predicted the following diseases:\n"
+#         prompt += "Model predicted the following diseases:\n"
 
-        for i, (disease, confidence) in enumerate(top, start=1):
-            prompt += f"{i}. {disease} — {confidence}% confidence\n"
+#         for i, (disease, confidence) in enumerate(top, start=1):
+#             prompt += f"{i}. {disease} — {confidence}% confidence\n"
 
-        prompt += "\nSymptoms that contributed most to the prediction:\n"
-        prompt += contribution_text
+#         prompt += "\nSymptoms that contributed most to the prediction:\n"
+#         prompt += contribution_text
         
-        prompt += f"""
+#         prompt += f"""
 
-Important symptom contributions:
-{contribution_text}
+# Important symptom contributions:
+# {contribution_text}
 
-Task:
-Explain the prediction results to the user using the structure below.
+# Task:
+# Explain the prediction results to the user using the structure below.
 
-Formatting rules:
-- Use Markdown formatting
-- Do not include code blocks
-- Use bullet points with "-"
-- Use **bold** for disease names
-- Keep the explanation under 250 words
+# Formatting rules:
+# - Use Markdown formatting
+# - Do not include code blocks
+# - Use bullet points with "-"
+# - Use **bold** for disease names
+# - Keep the explanation under 250 words
 
-Output structure:
+# Output structure:
 
-Start exactly with this sentence:
+# Start exactly with this sentence:
 
-Here is a summary of the possible conditions based on your symptoms.
+# Here is a summary of the possible conditions based on your symptoms.
 
-Sections to include:
+# Sections to include:
 
-Reported symptoms:
-[List symptoms as bullet points]
+# Reported symptoms:
+# [List symptoms as bullet points]
 
-Possible conditions identified by the model:
-[List diseases in numbered order with confidence]
+# Possible conditions identified by the model:
+# [List diseases in numbered order with confidence]
 
-Confidence interpretation:
-[Explain each disease confidence level]
-
-End with a disclaimer advising consultation with a healthcare professional.
-"""
+# Confidence interpretation:
+# [Explain each disease confidence level based on the percentage. For example, if confidence is above 70%, explain that the model is fairly confident in that prediction. If confidence is between 40% and 70%, explain that the model sees some correlation but it's not very strong. If confidence is below 40%, explain that the model is uncertain about that prediction.]
+# And if highest confidence is below [50%], remember to explain that the prediction is uncertain and recommend consulting a healthcare professional for an accurate diagnosis.]
+# """
         
     
         
-        response = self.client.models.generate_content(
-            model="gemma-3-27b-it",
-            contents=prompt
-        )
+#         response = self.client.models.generate_content(
+#             model="gemma-3-27b-it",
+#             contents=prompt
+#         )
 
-        return response.text.strip()
+#         return response.text.strip()
 
 
-# doctor = Doctor()
-# symptoms = ["nodal_skin_eruptions", "continuous_sneezing", "shivering", "chills", "joint_pain"]
+doctor = Doctor()
+symptoms = ['headache', 'high_fever', 'nausea']
 
-# print(doctor.explain_disease(symptoms))
+print(doctor.top_predictions(symptoms))

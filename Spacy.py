@@ -1,6 +1,4 @@
 import spacy
-
-# Load the medium-sized English model for better semantic similarity
 print("Loading spaCy model...")
 nlp = spacy.load("en_core_web_md")
 
@@ -23,8 +21,6 @@ symptom_dataset = [
 ,"fluid_overload","blood_in_sputum","prominent_veins_on_calf","palpitations","painful_walking","pus_filled_pimples","blackheads","scurring",
 "skin_peeling","silver_like_dusting","small_dents_in_nails","inflammatory_nails","blister","red_sore_around_nose","yellow_crust_ooze"
 ]
-
-# Provide a synonym map for highly specific semantic mappings that spacy vector similarity might miss
 synonym_map = {
     # Headache / Head pain
     "pain in head": "headache",
@@ -83,8 +79,7 @@ synonym_map = {
     "jaundice": "yellowish_skin",
     "zits": "pus_filled_pimples",
     "blisters": "blister",
-    
-    # Muscle / Joint / Body pain
+
     "muscle ache": "muscle_pain",
     "muscles hurt": "muscle_pain",
     "sore muscles": "muscle_pain",
@@ -100,7 +95,6 @@ synonym_map = {
     "can't move easily": "movement_stiffness",
     "stiff joints": "swelling_joints",
 
-    # Fatigue / Weakness
     "tired": "fatigue",
     "exhausted": "fatigue",
     "worn out": "fatigue",
