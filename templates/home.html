@@ -1,85 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Disease Detector | AI Symptom Checker</title>
-
-<link rel="stylesheet" href="/static/style.css">
-
-<!-- Markdown renderer -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-<!-- Main JS -->
-<script src="/static/home.js" defer></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disease Detector | AI Symptom Checker</title>
+  
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/static/home.js" defer></script>
 </head>
-
 <body>
+
+  <div class="sidebar" id="sidebar">
+    <button id="close-btn" class="icon-btn"><i class="fas fa-times"></i></button>
     <nav>
-        <a href="home.html">Home</a>
-        <a href="">How it works</a>
-        <a href="">About us</a>
+      <a href="home.html"><i class="fas fa-home"></i> Home</a>
+      <a href="#"><i class="fas fa-cogs"></i> How it works</a>
+      <a href="#"><i class="fas fa-info-circle"></i> About us</a>
     </nav>
+  </div>
 
-<div class="container">
+  <header>
+    <button id="menu-btn" class="icon-btn"><i class="fas fa-bars"></i></button>
+    <span class="logo-text">Disease Detector 🩺</span>
+  </header>
 
-<h1>Disease Detector</h1>
+  <main class="container">
+    
+    <section class="panel glass">
+      <h1>Symptom Analysis</h1>
+      <p class="subtitle">Input data parameters below.</p>
+      
+      <form id="symptomForm">
+        <div class="input-group">
+          <textarea 
+            id="symptoms" 
+            name="symptoms" 
+            placeholder="Initialize sequence... E.g., severe headache, mild fever, fatigue for 3 days." 
+            required></textarea>
+        </div>
+        <button type="submit" class="action-btn">Execute Analysis</button>
+      </form>
+    </section>
 
-<p class="subtitle">
-Identify potential health conditions according to the database
-</p>
+    <section class="panel glass output-panel">
+      
+      <div id="idleState" class="status-view active">
+        <i class="fas fa-microchip"></i>
+        <p>Awaiting system input...</p>
+      </div>
 
-<form id="symptomForm">
+      <div id="loadingDiv" class="status-view">
+        <div class="spinner"></div>
+        <p>Processing neural pathways...</p>
+      </div>
 
-<div class="input-group">
+      <div id="resultBox" class="result-box">
+        <h3>System Diagnosis</h3>
+        <div id="predictionContent"></div>
+        <p class="disclaimer">
+          <em>Disclaimer: Algorithmic output only. Consult a human physician.</em>
+        </p>
+      </div>
+      
+    </section>
 
-<label for="symptoms">
-Describe your symptoms in detail:
-</label>
-
-<textarea
-id="symptoms"
-name="symptoms"
-placeholder="E.g., I have been experiencing a severe headache, mild fever, and fatigue for the last 3 days."
-required></textarea>
-
-</div>
-
-<button type="submit" class="analyze-btn">
-Analyze Symptoms
-</button>
-
-</form>
-
-<!-- Loading animation -->
-<div class="loading" id="loadingDiv" style="display:none;">
-
-<div class="spinner"></div>
-
-Processing your data through our intelligence engine...
-
-</div>
-
-<!-- Prediction result -->
-<div class="result-box" id="resultBox" style="display:none;">
-
-<h3>Diagnostic Prediction</h3>
-
-<div id="predictionContent"></div>
-
-<p style="margin-top:10px;font-size:0.85rem;color:#a0aec0;">
-<em>
-Disclaimer: This is a predictive model and not a substitute for
-professional medical advice. Please consult a doctor for
-accurate diagnosis.
-</em>
-</p>
-
-</div>
-
-</div>
-
+  </main>
 </body>
 </html>
