@@ -1,47 +1,55 @@
-from fastapi import FastAPI, Request
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
 from func import Doctor
 
 app = FastAPI()
 
-# static folder for js/css
+# Mount static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# template folder
-templates = Jinja2Templates(directory="templates")
+# Serve homepage
+@app.get("/")
+def serve_home():
+    return FileResponse("templates/home.html")
+# Allow frontend access (important)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# load model once
+# Load model once
 doctor = Doctor()
 
 
-class Message(BaseModel):
-    message: str
+# Request schema
+class SymptomInput(BaseModel):
+    symptoms: str
 
 
-@app.get("/")
-def home(request: Request):
-    return templates.TemplateResponse(
-        "home.html",
-        {"request": request}
-    )
-
-
+# -----------------------------
+# 🧠 Prediction endpoint
+# -----------------------------
 @app.post("/predict")
-def predict(data: Message):
+def predict(data: SymptomInput):
+    try:
+        print("INPUT:", data.symptoms)
 
-    text = data.message.strip()
+        result = doctor.predict(data.symptoms)
 
-    if not text:
-        return {"prediction": "Please enter symptoms"}
+        print("OUTPUT:", result)
 
-    # Extract symptoms using NLP
-    # symptoms = nlp.extract_symptoms(text)
+        if "error" in result:
+            return {"prediction": None, "error": result["error"]}
 
-    # comments hahahahahahahha
+        return {"prediction": result}
 
-    prediction_explained = doctor.explain_disease([text])   
-    # print(prediction)   
-
-    return {"prediction": prediction_explained}
+    except Exception as e:
+        print("🔥 BACKEND ERROR:", str(e))
+        return {"prediction": None, "error": str(e)}
